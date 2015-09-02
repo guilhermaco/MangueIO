@@ -3,6 +3,7 @@ package io.mangue.mangueio;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -23,6 +25,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+
+    private Report mReport;
+    private AutoCompleteTextView mProblemTextView;
+    private EditText mEditTextDescription;
 
     protected static final String TAG = "LOCATION";
     private static final int ACTION_TAKE_PHOTO_B = 1;
@@ -50,7 +56,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mReport = new Report();
         mImageView = (ImageView) findViewById(R.id.imageView);
+        mProblemTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
+        mEditTextDescription = (EditText) findViewById(R.id.editText);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this,
@@ -58,10 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 PROBLEMS
         );
 
-        AutoCompleteTextView autoTextView = (AutoCompleteTextView)
-                findViewById(R.id.autoCompleteTextView);
-        autoTextView.setThreshold(2);
-        autoTextView.setAdapter(adapter);
+        mProblemTextView.setThreshold(2);
+        mProblemTextView.setAdapter(adapter);
 
         //PhotoButton
         final ImageButton photoButton = (ImageButton) findViewById(R.id.imageButtonPhoto);
@@ -70,11 +77,17 @@ public class MainActivity extends AppCompatActivity {
                 dispatchTakePictureIntent(ACTION_TAKE_PHOTO_S);
             }
         });
+
         //ReportButton
         final Button reportButton = (Button) findViewById(R.id.reportButton);
         reportButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MapsActivity.class));
+                Intent it = new Intent(MainActivity.this, MapsActivity.class);
+                mReport.setProblem(mProblemTextView.getText().toString());
+                mReport.setDescription(mEditTextDescription.getText().toString());
+                mReport.setImageBitmap(((BitmapDrawable)mImageView.getDrawable()).getBitmap());
+                it.putExtra("Report", mReport);
+                startActivity(it);
             }
         });
 
